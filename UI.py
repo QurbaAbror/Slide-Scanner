@@ -79,93 +79,83 @@ class SlideScanner:
             ui.notify('No frame available to capture', type='warning')
             print('⚠️ No frame available to capture')
 
-    def add_image_to_gallery(self, image_path):
-        """Add image to gallery popup with a remove button and no fullscreen click."""
+    # Di dalam kelas SlideScanner (UI.py)
+
+    # Ganti fungsi ini
+    def add_image_to_gallery(self, image_source, filename):
+        """Add image to gallery popup. Source can be a path or a Base64 Data URL."""
         if not self.gallery_container:
             return
 
-        self.gallery_images.append(image_path)
+        self.gallery_images.append(image_source) # Kita simpan sourcenya
 
         with self.gallery_container:
-            # Tangkap referensi kartu dengan 'as card'
             with ui.card().classes('gallery-thumbnail-card') as card:
-                # 1. TOMBOL 'X' BARU DITAMBAHKAN DI SINI
-                ui.icon('close').classes('remove-image-btn') \
-                    .on('click', lambda p=image_path, c=card: self.remove_image_from_gallery(p, c)) \
+                ui.icon('close').classes('remove-image-btn').style('z-index: 10;') \
+                    .on('click', lambda c=card, s=image_source: self.remove_image_from_gallery(s, c)) \
                     .tooltip('Remove image from gallery')
 
-                # 2. .on('click', ...) DIHAPUS DARI ui.image
-                # Sekarang klik pada gambar tidak akan melakukan apa-apa
-                ui.image(image_path).classes('thumbnail-image')
+                # ui.image bisa langsung menampilkan dari Data URL
+                ui.image(image_source).classes('thumbnail-image')
 
-                # Label dengan filename
-                filename = os.path.basename(image_path)
+                # Gunakan filename yang sudah kita dapatkan
                 ui.label(filename).classes('text-xs text-gray-400 w-full text-center truncate') \
-                                  .style('max-width: 180px;')
+                              .style('max-width: 180px;')
 
         if self.gallery_popup:
             self.gallery_popup.style('display: flex;')
 
-        print(f'📸 Image added to gallery: {image_path}')
-    
-    def remove_image_from_gallery(self, image_path, card_element):
+        print(f'📸 Image added to gallery: {filename}')
+
+
+    def remove_image_from_gallery(self, image_source, card_element):
         """Removes a specific image and its card from the gallery."""
-        # Hapus elemen UI (kartu thumbnail)
         card_element.delete()
+        if image_source in self.gallery_images:
+            self.gallery_images.remove(image_source)
+        print(f'❌ Image removed from gallery.')
+    
 
-        # Hapus path gambar dari list data
-        if image_path in self.gallery_images:
-            self.gallery_images.remove(image_path)
-        
-        print(f'❌ Image removed from gallery: {os.path.basename(image_path)}')
-
+    # Di dalam kelas SlideScanner (UI.py)
 
     async def open_image_file(self):
-        """Open image file from disk"""
-        # Use NiceGUI's upload component
-        result = await ui.run_javascript('''
-            return new Promise((resolve) => {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/*';
-                input.onchange = (e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            resolve({name: file.name, data: event.target.result});
-                        };
-                        reader.readAsDataURL(file);
-                    } else {
-                        resolve(null);
-                    }
-                };
-                input.click();
-            });
-        ''')
+        """
+        Opens a file dialog and displays the image using a local Blob URL.
+        This is very efficient and works for large files.
+        """
+        try:
+            result = await ui.run_javascript('''
+                return new Promise((resolve) => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.onchange = (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            // BUKAN LAGI MEMBACA SEBAGAI DATA URL, TAPI MEMBUAT OBJECT URL
+                            const url = URL.createObjectURL(file);
+                            // Kirim nama file dan Object URL-nya yang efisien
+                            resolve({name: file.name, url: url});
+                        } else {
+                            resolve(null);
+                        }
+                    };
+                    input.click();
+                });
+            ''', timeout=60.0)
 
-        if result:
-            # Save uploaded file to snapshots directory
-            import base64
-            snapshot_dir = 'snapshots'
-            if not os.path.exists(snapshot_dir):
-                os.makedirs(snapshot_dir)
+            if result:
+                # Panggil add_image_to_gallery dengan source Blob URL dan nama filenya
+                # 'url' adalah kunci yang kita definisikan di JavaScript di atas
+                self.add_image_to_gallery(image_source=result['url'], filename=result['name'])
+            else:
+                ui.notify('No file was selected.', type='info')
 
-            # Extract base64 data
-            if ',' in result['data']:
-                base64_data = result['data'].split(',')[1]
-                image_data = base64.b64decode(base64_data)
-
-                # Save file
-                filename = f"{snapshot_dir}/{result['name']}"
-                with open(filename, 'wb') as f:
-                    f.write(image_data)
-
-                ui.notify(f"Image opened: {result['name']}", type='positive')
-                print(f'📂 Image opened: {filename}')
-
-                # Add to gallery
-                self.add_image_to_gallery(filename)
+        except TimeoutError:
+            ui.notify('You took too long to select a file.', type='warning')
+        except Exception as e:
+            print(f"An error occurred in open_image_from_pc: {e}")
+            ui.notify(f'An error occurred: {e}', type='negative')
     
 
 def create_ui():
@@ -250,6 +240,7 @@ def create_ui():
             position: absolute;
             top: 2px;
             right: 2px;
+            z-index: 10;
             color: #bbb;
             background-color: rgba(0, 0, 0, 0.4);
             border-radius: 50%;
