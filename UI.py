@@ -2,6 +2,7 @@ from nicegui import ui
 from camera_usb import CameraManager
 import os
 from datetime import datetime
+import base64
 
 class SlideScanner:
     def __init__(self):
@@ -17,6 +18,12 @@ class SlideScanner:
         self.main_stream_widget = None
         self.preview_widget = None
         self.main_camera = None  # Will be set from main.py
+
+        # Gallery untuk snapshot dan opened images
+        self.gallery_popup = None
+        self.gallery_container = None
+        self.gallery_images = []  # List untuk menyimpan path gambar
+        self.snapshot_counter = 0
     
     def switch_streams(self):
         """Menukar sumber URL antara widget utama dan preview."""
@@ -65,9 +72,100 @@ class SlideScanner:
             cv2.imwrite(filename, frame_bgr)
             ui.notify(f'Snapshot saved: {filename}', type='positive')
             print(f'✅ Snapshot saved: {filename}')
+
+            # Add to gallery
+            self.add_image_to_gallery(filename)
         else:
             ui.notify('No frame available to capture', type='warning')
             print('⚠️ No frame available to capture')
+
+    def add_image_to_gallery(self, image_path):
+        """Add image to gallery popup with a remove button and no fullscreen click."""
+        if not self.gallery_container:
+            return
+
+        self.gallery_images.append(image_path)
+
+        with self.gallery_container:
+            # Tangkap referensi kartu dengan 'as card'
+            with ui.card().classes('gallery-thumbnail-card') as card:
+                # 1. TOMBOL 'X' BARU DITAMBAHKAN DI SINI
+                ui.icon('close').classes('remove-image-btn') \
+                    .on('click', lambda p=image_path, c=card: self.remove_image_from_gallery(p, c)) \
+                    .tooltip('Remove image from gallery')
+
+                # 2. .on('click', ...) DIHAPUS DARI ui.image
+                # Sekarang klik pada gambar tidak akan melakukan apa-apa
+                ui.image(image_path).classes('thumbnail-image')
+
+                # Label dengan filename
+                filename = os.path.basename(image_path)
+                ui.label(filename).classes('text-xs text-gray-400 w-full text-center truncate') \
+                                  .style('max-width: 180px;')
+
+        if self.gallery_popup:
+            self.gallery_popup.style('display: flex;')
+
+        print(f'📸 Image added to gallery: {image_path}')
+    
+    def remove_image_from_gallery(self, image_path, card_element):
+        """Removes a specific image and its card from the gallery."""
+        # Hapus elemen UI (kartu thumbnail)
+        card_element.delete()
+
+        # Hapus path gambar dari list data
+        if image_path in self.gallery_images:
+            self.gallery_images.remove(image_path)
+        
+        print(f'❌ Image removed from gallery: {os.path.basename(image_path)}')
+
+
+    async def open_image_file(self):
+        """Open image file from disk"""
+        # Use NiceGUI's upload component
+        result = await ui.run_javascript('''
+            return new Promise((resolve) => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            resolve({name: file.name, data: event.target.result});
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        resolve(null);
+                    }
+                };
+                input.click();
+            });
+        ''')
+
+        if result:
+            # Save uploaded file to snapshots directory
+            import base64
+            snapshot_dir = 'snapshots'
+            if not os.path.exists(snapshot_dir):
+                os.makedirs(snapshot_dir)
+
+            # Extract base64 data
+            if ',' in result['data']:
+                base64_data = result['data'].split(',')[1]
+                image_data = base64.b64decode(base64_data)
+
+                # Save file
+                filename = f"{snapshot_dir}/{result['name']}"
+                with open(filename, 'wb') as f:
+                    f.write(image_data)
+
+                ui.notify(f"Image opened: {result['name']}", type='positive')
+                print(f'📂 Image opened: {filename}')
+
+                # Add to gallery
+                self.add_image_to_gallery(filename)
     
 
 def create_ui():
@@ -101,6 +199,79 @@ def create_ui():
             flex-direction: column;
             padding: 0;
             overflow: hidden;
+        }
+
+        .gallery-popup {
+            position: fixed;
+            top: 187px;  /* 65px (top preview) + 112px (height preview) + 10px (gap) */
+            right: 20px;
+            width: 200px;
+            max-height: calc(100vh - 207px);  /* Sisa tinggi layar */
+            background: rgba(40, 40, 40, 0.85);
+            backdrop-filter: blur(5px);
+            border: 1px solid #555;
+            border-radius: 8px;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            flex-direction: column;
+            padding: 10px;
+            overflow-y: auto;  /* Scrollable jika banyak gambar */
+            overflow-x: hidden;
+            display: none;  /* Hidden by default */
+        }
+
+        .gallery-popup::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .gallery-popup::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        .gallery-popup::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .gallery-popup::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .gallery-thumbnail-card {
+            width: 100%;
+            padding: 5px;
+            margin: 0;
+            box-sizing: border-box; /* Memastikan padding tidak menambah lebar */
+            position: relative;
+        }
+        
+        .remove-image-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            color: #bbb;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+            padding: 2px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .remove-image-btn:hover {
+            color: #fff;
+            background-color: rgba(255, 0, 0, 0.7);
+            transform: scale(1.1);
+        }
+
+        .thumbnail-image {
+            width: 100%;              /* Lebar gambar mengisi 100% dari card */
+            height: 120px;            /* TINGGI TETAP, ini kuncinya! */
+            object-fit: contain;      /* Membuat gambar muat tanpa terpotong */
+            background-color: #2a2a2a; /* Warna latar belakang untuk 'letterboxing' */
+            border-radius: 4px;       /* Sedikit lengkungan di sudut */
+            cursor: pointer;
         }
 
         .zoom-popup {
@@ -173,7 +344,7 @@ def create_ui():
                     ui.item('Open Project', on_click=lambda: ui.notify('Open Project dialog'))
                     ui.item('Save Project', on_click=lambda: ui.notify('Project saved'))
                     ui.separator()
-                    ui.item('Import Image', on_click=lambda: ui.notify('Import Image dialog'))
+                    ui.item('📂 Open Image', on_click=lambda: app.open_image_file())
                     ui.item('Export Image', on_click=lambda: ui.notify('Export Image dialog'))
                     ui.separator()
                     ui.item('Exit', on_click=lambda: ui.notify('Exit application'))
@@ -181,6 +352,7 @@ def create_ui():
                 # === View menu ===
                 with ui.dropdown_button('View', icon='visibility', auto_close=True).props('flat size=sm').classes('text-white text-sm'):
                     ui.item('Toggle Preview', on_click=lambda: toggle_preview(app))
+                    ui.item('Toggle Gallery', on_click=lambda: toggle_gallery(app))
                     ui.item('Toggle Zoom Slider', on_click=lambda: toggle_zoom_slider(app))
                     ui.separator()
                     ui.item('Full Screen', on_click=lambda: ui.notify('Full Screen mode activated'))
@@ -236,7 +408,17 @@ def create_ui():
         # Tombol close baru tanpa judul
         ui.icon('close').classes('close-btn').on('click', lambda: hide_preview(app))
         app.preview_widget = ui.image('/preview_feed').style('width: 100%; height: 100%; object-fit: contain;')
-        
+
+    # Create gallery popup (di bawah preview)
+    app.gallery_popup = ui.element('div').classes('gallery-popup')
+    with app.gallery_popup:
+        # Tombol close
+        ui.icon('close').classes('close-btn').on('click', lambda: hide_gallery(app))
+        # Title
+        ui.label('Gallery').classes('text-sm font-bold text-white mb-2')
+        # Container untuk images (scrollable)
+        app.gallery_container = ui.column().style('width: 100%; gap: 10px;')
+
     # Create zoom popup
     app.zoom_popup = ui.element('div').classes('zoom-popup')
     with app.zoom_popup:
@@ -263,6 +445,18 @@ def hide_preview(app):
     """Hide preview pop-up"""
     app.preview_visible = False
     app.preview_popup.style('display: none;')
+
+def toggle_gallery(app):
+    """Toggle gallery pop-up visibility"""
+    current_display = app.gallery_popup._props.get('style', '')
+    if 'display: none' in current_display or not current_display:
+        app.gallery_popup.style('display: flex;')
+    else:
+        app.gallery_popup.style('display: none;')
+
+def hide_gallery(app):
+    """Hide gallery pop-up"""
+    app.gallery_popup.style('display: none;')
 
 def toggle_zoom_slider(app):
     """Toggle zoom slider pop-up visibility"""
