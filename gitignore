@@ -1,0 +1,11 @@
+# Folder Virtual Environment
+/env-nice/
+/snapshots/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# File-file lain yang mungkin tidak perlu
+.vscode/
+*.env
