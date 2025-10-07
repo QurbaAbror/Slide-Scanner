@@ -1,4 +1,5 @@
 from nicegui import ui
+from nicegui.events import KeyEventArguments
 from camera_usb import CameraManager
 import os
 from datetime import datetime
@@ -8,9 +9,11 @@ class SlideScanner:
     def __init__(self):
         self.preview_visible = True
         self.zoom_slider_visible = False
+        self.movement_visible = False
         self.zoom_level = 1.0
         self.preview_popup = None
         self.zoom_popup = None
+        self.movement_popup = None
         self.zoom_slider = None
         self.zoom_label = None
         self.main_stream_source = 'toupcam'
@@ -279,6 +282,33 @@ def create_ui():
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             display: none;
         }
+        
+        
+        .movement-popup {
+            position: fixed;
+            bottom: 150px;
+            left: 20px;
+            width: 240px; /* <-- Sedikit lebih lebar */
+            height: 150px;
+            background: rgba(40, 40, 40, 0.85);
+            backdrop-filter: blur(5px);
+            border: 1px solid #555;
+            border-radius: 20px; /* <-- Menjadi persegi membulat */
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px; /* <-- Menambahkan sedikit padding horizontal */
+        }
+        .movement-btn {
+            transition: all 0.1s ease-in-out;
+        }
+        
+        .movement-btn:active {
+            background-color: rgba(255, 255, 255, 0.3) !important;
+            transform: scale(0.95);
+        }
 
         /* === GAYA BARU UNTUK TOMBOL CLOSE === */
         .close-btn {
@@ -345,6 +375,7 @@ def create_ui():
                     ui.item('Toggle Preview', on_click=lambda: toggle_preview(app))
                     ui.item('Toggle Gallery', on_click=lambda: toggle_gallery(app))
                     ui.item('Toggle Zoom Slider', on_click=lambda: toggle_zoom_slider(app))
+                    ui.item('Toggle Movement', on_click=lambda: toggle_movement(app))
                     ui.separator()
                     ui.item('Full Screen', on_click=lambda: ui.notify('Full Screen mode activated'))
                     ui.item('Reset View', on_click=lambda: ui.notify('View reset to default'))
@@ -420,6 +451,47 @@ def create_ui():
         app.zoom_slider = ui.slider(min=0.1, max=5.0, value=1.0, step=0.1, on_change=lambda e: on_zoom_change(app, e))
         app.zoom_label = ui.label(f'Zoom: {app.zoom_level:.1f}x').classes('text-sm text-gray-400 mt-2') # Ubah warna teks agar kontras
 
+    app.movement_popup = ui.element('div').classes('movement-popup')
+    with app.movement_popup:
+        ui.icon('close').classes('close-btn').on('click', lambda: hide_movement(app))
+    
+        # Gunakan row untuk menata grup tombol secara horizontal
+        with ui.row().classes('w-full h-full items-center justify-center gap-4'):
+        
+            # --- Grup Tombol Fokus (KIRI) ---
+            
+
+            # --- Grup Tombol Arah (KANAN) ---
+            with ui.grid(columns=3).classes('content-center justify-center gap-0'):
+                ui.label()
+                ui.button(icon='arrow_upward', on_click=lambda: on_move('up')) \
+                    .props('flat round color=white').classes('movement-btn move-btn-up')
+                ui.label()
+            
+                ui.button(icon='arrow_left', on_click=lambda: on_move('left')) \
+                    .props('flat round color=white').classes('movement-btn move-btn-left')
+                ui.button(icon='radio_button_unchecked', on_click=lambda: on_move('center')) \
+                    .props('flat round color=white').classes('movement-btn move-btn-center')
+                ui.button(icon='arrow_right', on_click=lambda: on_move('right')) \
+                    .props('flat round color=white').classes('movement-btn move-btn-right')
+            
+                ui.label()
+                ui.button(icon='arrow_downward', on_click=lambda: on_move('down')) \
+                    .props('flat round color=white').classes('movement-btn move-btn-down')
+                ui.label()
+
+            with ui.column().classes('gap-2'):
+                # Tombol Page Up
+                ui.button(icon='expand_less', on_click=lambda: ui.notify('Page Up!')) \
+                    .props('flat round color=white').classes('movement-btn move-btn-pgup') \
+                    .tooltip('Focus Up (Page Up)')
+            
+                # Tombol Page Down
+                ui.button(icon='expand_more', on_click=lambda: ui.notify('Page Down!')) \
+                    .props('flat round color=white').classes('movement-btn move-btn-pgdn') \
+                    .tooltip('Focus Down (Page Down)')
+
+    ui.keyboard(on_key=handle_key)
     # Return app instance so it can be accessed from main.py
     return app
 
@@ -479,4 +551,64 @@ def show_stream_status(app: SlideScanner):
     # Kita kembalikan notifikasi untuk fungsi ini karena sangat berguna untuk debugging
     ui.notify(status_text, multi_line=True, type='info', position='center')
 
+def toggle_movement(app):
+    """Toggle movement pop-up visibility"""
+    app.movement_visible = not app.movement_visible
+    if app.movement_visible:
+        # Gunakan 'display: flex' agar justify/align-items berfungsi
+        app.movement_popup.style('display: flex;')
+    else:
+        app.movement_popup.style('display: none;')
 
+def hide_movement(app):
+    """Hide movement pop-up"""
+    app.movement_visible = False
+    app.movement_popup.style('display: none;')
+
+def on_move(direction: str):
+    """Placeholder function to handle movement button clicks."""
+    # Di sini Anda akan menambahkan logika untuk menggerakkan stage mikroskop
+    print(f"MOVE: {direction.upper()}")
+    ui.notify(f'Move {direction}')
+
+def handle_key(e: KeyEventArguments):
+    """Fungsi ini dipanggil oleh ui.keyboard saat tombol yang terdaftar ditekan."""
+    # Kita hanya ingin trigger saat tombol DITEKAN (keydown), bukan dilepas (keyup)
+    if not e.action.keydown:
+        return
+
+    if not e.action.repeat:
+        direction = None
+        target_class = None
+        if e.key == 'ArrowUp':
+            direction = 'up'
+            target_class = '.move-btn-up'
+        elif e.key == 'ArrowDown':
+            direction = 'down'
+            target_class = '.move-btn-down'
+        elif e.key == 'ArrowLeft':
+            direction = 'left'
+            target_class = '.move-btn-left'
+        elif e.key == 'ArrowRight':
+            direction = 'right'
+            target_class = '.move-btn-right'
+        elif e.key == 'PageUp':
+            direction = 'PgUp'
+            target_class = '.move-btn-pgup'
+        elif e.key == 'PageDown' :
+            direction = 'PgDown'
+            target_class == '.move-btn-pgdown'
+        
+        if direction:
+            on_move(direction)
+            
+            js_command = f"""
+                const btn = document.querySelector('{target_class}');
+                if (btn) {{
+                    btn.classList.add('movement-btn-active');
+                    setTimeout(() => {{
+                        btn.classList.remove('movement-btn-active');
+                    }}, 150);
+                }}
+            """
+            ui.run_javascript(js_command)
