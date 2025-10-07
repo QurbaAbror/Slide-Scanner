@@ -1,0 +1,12 @@
+# ================================
+# Konfigurasi Utama Slide Scanner
+# ================================
+
+grbl:
+  port: auto         
+  baudrate: 115200   # kecepatan komunikasi serial
+  timeout: 1         # dalam detik
+
+ui:
+  port: 5000          # port web untuk NiceGUI
+  host: 127.0.0.1     # bisa 0.0.0.0 kalau mau diakses dari jaringan

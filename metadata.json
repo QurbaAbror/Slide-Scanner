@@ -1,0 +1,331 @@
+{
+    "image_tiles": [
+      {
+        "file_name": "tile_0_0.tif",
+        "grid_row": 0,
+        "grid_col": 0,
+        "position_x_um": 0.0,
+        "position_y_um": 0.0,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_0_1.tif",
+        "grid_row": 0,
+        "grid_col": 1,
+        "position_x_um": 1884,
+        "position_y_um": 0.0,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_0_2.tif",
+        "grid_row": 0,
+        "grid_col": 2,
+        "position_x_um": 3768,
+        "position_y_um": 0.0,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_0_3.tif",
+        "grid_row": 0,
+        "grid_col": 3,
+        "position_x_um": 5652,
+        "position_y_um": 0.0,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_0_4.tif",
+        "grid_row": 0,
+        "grid_col": 4,
+        "position_x_um": 7536,
+        "position_y_um": 0.0,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_0_5.tif",
+        "grid_row": 0,
+        "grid_col": 5,
+        "position_x_um": 9420,
+        "position_y_um": 0.0,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_0_6.tif",
+        "grid_row": 0,
+        "grid_col": 6,
+        "position_x_um": 11304,
+        "position_y_um": 0.0,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_0_7.tif",
+        "grid_row": 0,
+        "grid_col": 7,
+        "position_x_um": 13188,
+        "position_y_um": 0.0,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_0_8.tif",
+        "grid_row": 0,
+        "grid_col": 8,
+        "position_x_um": 15072,
+        "position_y_um": 0.0,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_1_0.tif",
+        "grid_row": 1,
+        "grid_col": 0,
+        "position_x_um": 0.0,
+        "position_y_um": 1738,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_1_1.tif",
+        "grid_row": 1,
+        "grid_col": 1,
+        "position_x_um": 1884,
+        "position_y_um": 1738,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_1_2.tif",
+        "grid_row": 1,
+        "grid_col": 2,
+        "position_x_um": 3768,
+        "position_y_um": 1738,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_1_3.tif",
+        "grid_row": 1,
+        "grid_col": 3,
+        "position_x_um": 5652,
+        "position_y_um": 1738,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_1_4.tif",
+        "grid_row": 1,
+        "grid_col": 4,
+        "position_x_um": 7536,
+        "position_y_um": 1738,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_1_5.tif",
+        "grid_row": 1,
+        "grid_col": 5,
+        "position_x_um": 9420,
+        "position_y_um": 1738,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_1_6.tif",
+        "grid_row": 1,
+        "grid_col": 6,
+        "position_x_um": 11304,
+        "position_y_um": 1738,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_1_7.tif",
+        "grid_row": 1,
+        "grid_col": 7,
+        "position_x_um": 13188,
+        "position_y_um": 1738,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_1_8.tif",
+        "grid_row": 1,
+        "grid_col": 8,
+        "position_x_um": 15072,
+        "position_y_um": 1738,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_2_0.tif",
+        "grid_row": 2,
+        "grid_col": 0,
+        "position_x_um": 0.0,
+        "position_y_um": 3476,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_2_1.tif",
+        "grid_row": 2,
+        "grid_col": 1,
+        "position_x_um": 1884,
+        "position_y_um": 3476,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_2_2.tif",
+        "grid_row": 2,
+        "grid_col": 2,
+        "position_x_um": 3768,
+        "position_y_um": 3476,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_2_3.tif",
+        "grid_row": 2,
+        "grid_col": 3,
+        "position_x_um": 5652,
+        "position_y_um": 3476,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_2_4.tif",
+        "grid_row": 2,
+        "grid_col": 4,
+        "position_x_um": 7536,
+        "position_y_um": 3476,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_2_5.tif",
+        "grid_row": 2,
+        "grid_col": 5,
+        "position_x_um": 9420,
+        "position_y_um": 3476,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_2_6.tif",
+        "grid_row": 2,
+        "grid_col": 6,
+        "position_x_um": 11304,
+        "position_y_um": 3476,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_2_7.tif",
+        "grid_row": 2,
+        "grid_col": 7,
+        "position_x_um": 13188,
+        "position_y_um": 3476,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_2_8.tif",
+        "grid_row": 2,
+        "grid_col": 8,
+        "position_x_um": 15072,
+        "position_y_um": 3476,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_3_0.tif",
+        "grid_row": 3,
+        "grid_col": 0,
+        "position_x_um": 0.0,
+        "position_y_um":  5214,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_3_1.tif",
+        "grid_row": 3,
+        "grid_col": 1,
+        "position_x_um": 1884,
+        "position_y_um": 5214,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_3_2.tif",
+        "grid_row": 3,
+        "grid_col": 2,
+        "position_x_um": 3768,
+        "position_y_um": 5214,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_3_3.tif",
+        "grid_row": 3,
+        "grid_col": 3,
+        "position_x_um": 5652,
+        "position_y_um": 5214,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_3_4.tif",
+        "grid_row": 3,
+        "grid_col": 4,
+        "position_x_um": 7536,
+        "position_y_um": 5214,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_3_5.tif",
+        "grid_row": 3,
+        "grid_col": 5,
+        "position_x_um": 9420,
+        "position_y_um": 5214,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_3_6.tif",
+        "grid_row": 3,
+        "grid_col": 6,
+        "position_x_um": 11304,
+        "position_y_um": 5214,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_3_7.tif",
+        "grid_row": 3,
+        "grid_col": 7,
+        "position_x_um": 13188,
+        "position_y_um": 5214,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      },
+      {
+        "file_name": "tile_3_8.tif",
+        "grid_row": 3,
+        "grid_col": 8,
+        "position_x_um": 15072,
+        "position_y_um": 5214,
+        "width_pixels": 2448,
+        "height_pixels": 2048
+      }
+    ],
+    "metadata_details": {
+      "pixel_size_um": 0.249
+    }
+  }

@@ -73,8 +73,8 @@ class SlideScanner:
             ui.notify(f'Snapshot saved: {filename}', type='positive')
             print(f'✅ Snapshot saved: {filename}')
 
-            # Add to gallery
-            self.add_image_to_gallery(filename)
+             # Add to gallery — image_source pakai path file lokal
+            self.add_image_to_gallery(image_source=filename, filename=os.path.basename(filename))
         else:
             ui.notify('No frame available to capture', type='warning')
             print('⚠️ No frame available to capture')
