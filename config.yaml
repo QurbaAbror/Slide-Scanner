@@ -6,6 +6,7 @@ grbl:
   port: auto         
   baudrate: 115200   # kecepatan komunikasi serial
   timeout: 1         # dalam detik
+  port_description : ["Arduino", "CH340"]
 
 ui:
   port: 5000          # port web untuk NiceGUI

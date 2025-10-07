@@ -8,17 +8,24 @@ from starlette.responses import StreamingResponse
 from UI import create_ui
 from camera_usb import CameraManager
 from toupcam_manager import ToupcamStream
+from grbl_manager import grbl_manager
 
 # --- Inisialisasi Kamera (Tetap Global) ---
 # Objek kamera dibuat sekali saat aplikasi pertama kali berjalan.
-print("Menginisialisasi objek kamera...")
+print("Menginisialisasi objek global...")
 preview_camera = CameraManager(camera_index=0)
-atexit.register(preview_camera.stop)
-
 main_camera = ToupcamStream()
-atexit.register(main_camera.stop_stream)
-print("Inisialisasi kamera selesai.")
+grbl = grbl_manager() # <-- NEW: Buat satu instance GRBL manager untuk seluruh aplikasi
 
+# Daftarkan fungsi stop untuk dijalankan saat aplikasi ditutup
+atexit.register(preview_camera.stop)
+atexit.register(main_camera.stop_stream)
+print("Inisialisasi global selesai.")
+
+def connect_hardware():
+    """Fungsi untuk menghubungkan semua perangkat keras."""
+    print("🚀 Memulai koneksi hardware saat startup...")
+    grbl.connect_grbl()
 
 # --- Endpoints untuk Video Stream (Tidak Berubah) ---
 # Endpoint ini khusus untuk menyediakan data gambar streaming.
@@ -63,4 +70,5 @@ def main_page():
 # --- Menjalankan Aplikasi (Tidak Berubah) ---
 if __name__ in {"__main__", "__mp_main__"}:
     print("Menjalankan aplikasi NiceGUI pada port 5000...")
+    connect_hardware()
     ui.run(port=5000)
